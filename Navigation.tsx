@@ -1,6 +1,7 @@
 import React from 'react';
 import { ViewState } from '../types';
 import BrandLogo from './BrandLogo';
+import { cva } from 'class-variance-authority';
 
 interface NavigationProps {
   currentView: ViewState;
@@ -8,13 +9,28 @@ interface NavigationProps {
 }
 
 const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
-  // FIX: Added ORACLE to the navigation to make the chat feature accessible.
   const navItems = [
     { label: 'MANIFESTO', value: ViewState.MANIFESTO },
     { label: 'PROTOCOLS', value: ViewState.PROTOCOLS },
     { label: 'ARCHIVE', value: ViewState.ARCHIVE },
-    { label: 'ORACLE', value: ViewState.ORACLE },
   ];
+
+  const navButtonStyles = cva(
+    'font-display tracking-widest transition-all duration-300',
+    {
+      variants: {
+        isActive: {
+          true: 'text-bronze',
+          false: 'text-mist hover:text-white',
+        },
+        isMobile: {
+          true: 'text-[10px] font-bold',
+          false: 'text-sm relative',
+        },
+      },
+      defaultVariants: { isActive: false, isMobile: false },
+    }
+  );
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-void/90 backdrop-blur-md border-b border-stone/50">
@@ -23,7 +39,7 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
           className="flex items-center gap-3 cursor-pointer group hover:opacity-80 transition-opacity" 
           onClick={() => setView(ViewState.MANIFESTO)}
         >
-          <BrandLogo className="h-16 w-auto text-bronze drop-shadow-[0_0_8px_rgba(205,127,50,0.2)]" />
+          <BrandLogo className="h-16 w-auto text-bronze drop-shadow-bronze" />
         </div>
 
         <div className="flex items-center gap-8 hidden md:flex">
@@ -31,14 +47,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
             <button
               key={item.value}
               onClick={() => setView(item.value)}
-              className={`
-                text-sm font-display tracking-widest transition-all duration-300 relative
-                ${currentView === item.value ? 'text-bronze' : 'text-mist hover:text-white'}
-              `}
+              className={navButtonStyles({ isActive: currentView === item.value })}
             >
               {item.label}
               {currentView === item.value && (
-                <span className="absolute -bottom-2 left-0 w-full h-[1px] bg-bronze animate-pulse-slow" />
+                <span className="absolute -bottom-2 left-0 w-full h-[1px] bg-bronze" />
               )}
             </button>
           ))}
@@ -50,7 +63,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
              <button
                key={item.value}
                onClick={() => setView(item.value)}
-               className={`text-[10px] font-bold tracking-widest ${currentView === item.value ? 'text-bronze' : 'text-stone'}`}
+               className={navButtonStyles({
+                 isActive: currentView === item.value,
+                 isMobile: true,
+                 className: currentView !== item.value ? 'text-stone' : '' // Keep specific mobile inactive color
+               })}
              >
                {item.label.slice(0, 3)}
              </button>
